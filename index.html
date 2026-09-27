@@ -337,6 +337,58 @@
     </div>
   </div>
 
+  <!-- Create Commons Category Modal -->
+  <div class="modal-backdrop" id="createCatModal" style="display:none;">
+    <div class="modal-window modal-window--wide">
+      <div class="modal-header">
+        <h3>Стварэнне катэгорыі на Вікісховішчы</h3>
+        <button class="modal-close" id="createCatCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted);">
+          Катэгорыі для гэтага помніка яшчэ няма на Вікісховішчы. Мы аўтаматычна падрыхтавалі гатовы Вікітэкст старонкі (шыфр, GPS-каардынаты, апісанне па-беларуску і бацькоўскія катэгорыі).
+        </p>
+
+        <div class="create-cat-field">
+          <label class="create-cat-label">Назва новай катэгорыі:</label>
+          <div class="create-cat-input-row">
+            <input type="text" id="createCatTitleInput" class="create-cat-input" readonly>
+            <button type="button" class="btn-copy-code" id="createCatCopyTitleBtn" title="Капіяваць назву">Капіяваць назву</button>
+          </div>
+        </div>
+
+        <div class="create-cat-field">
+          <label class="create-cat-label">Вікітэкст для старонкі катэгорыі:</label>
+          <div class="create-cat-code-box">
+            <textarea id="createCatWikitext" class="create-cat-textarea" readonly rows="7"></textarea>
+            <button type="button" class="btn-copy-code-overlay" id="createCatCopyTextBtn">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="createCatCopyTextLabel">Капіяваць Вікітэкст</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="create-cat-tip">
+          <strong>Як завяршыць стварэнне на Вікісховішчы:</strong>
+          <ol style="margin: 6px 0 0 18px; font-size: 0.85rem; line-height: 1.5;">
+            <li>Тэкст ужо <strong>скапіяваны ў ваш буфер абмену</strong>.</li>
+            <li>Націсніце кнопку ніжэй, каб перайсці да старонкі рэдагавання катэгорыі на Вікісховішчы.</li>
+            <li>У полі рэдагавання націсніце <strong>Ctrl+V</strong> (уставіць) і націсніце «Апублікаваць старонку».</li>
+          </ol>
+        </div>
+
+        <div class="create-cat-actions">
+          <a href="#" target="_blank" rel="noopener" class="btn-upload-commons" id="createCatOpenCommonsBtn" style="background:#2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
+            <span>Адкрыць рэдактар Вікісховішча і ўставіць (Ctrl+V)</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
@@ -356,6 +408,6 @@
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

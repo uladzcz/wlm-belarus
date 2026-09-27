@@ -231,21 +231,68 @@ function handleCreateOrOpenCategory(monumentId, event) {
     return;
   }
 
+  openCreateCategoryModal(m);
+}
+
+function openCreateCategoryModal(m) {
   const catTitle = getDefaultCategoryTitle(m);
   const wikitext = generateCategoryWikitext(m);
 
+  // Auto-copy to clipboard immediately
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(wikitext).then(() => {
-      showToast(`Шаблон катэгорыі для «${catTitle}» скапіяваны ў буфер абмену! Націсніце Ctrl+V пры рэдагаванні старонкі.`);
-    }).catch(() => {
-      showToast(`Адкрываецца старонка стварэння катэгорыі «${catTitle}»...`);
-    });
-  } else {
-    showToast(`Адкрываецца старонка стварэння катэгорыі «${catTitle}»...`);
+    navigator.clipboard.writeText(wikitext).catch(() => {});
   }
 
-  const editUrl = `https://commons.wikimedia.org/w/index.php?title=Category:${encodeURIComponent(catTitle.replace(/ /g, '_'))}&action=edit&preloadtext=${encodeURIComponent(wikitext)}`;
-  window.open(editUrl, '_blank');
+  const modal = document.getElementById('createCatModal');
+  const titleInput = document.getElementById('createCatTitleInput');
+  const textarea = document.getElementById('createCatWikitext');
+  const openBtn = document.getElementById('createCatOpenCommonsBtn');
+  const copyTitleBtn = document.getElementById('createCatCopyTitleBtn');
+  const copyTextBtn = document.getElementById('createCatCopyTextBtn');
+  const copyTextLabel = document.getElementById('createCatCopyTextLabel');
+
+  if (titleInput) titleInput.value = catTitle;
+  if (textarea) textarea.value = wikitext;
+
+  const distCat = getDistrictCommonsCategory(m);
+  const latStr = m.lat ? Number(m.lat).toFixed(6) : '';
+  const lonStr = m.lon ? Number(m.lon).toFixed(6) : '';
+  const titleStr = m.t || '';
+
+  const editUrl = `https://commons.wikimedia.org/w/index.php?title=Category:${encodeURIComponent(catTitle.replace(/ /g, '_'))}&action=edit&preload=Template:Belarus_heritage_category_preload&preloadparams[]=${encodeURIComponent(m.c || '')}&preloadparams[]=${encodeURIComponent(latStr)}&preloadparams[]=${encodeURIComponent(lonStr)}&preloadparams[]=${encodeURIComponent(titleStr)}&preloadparams[]=${encodeURIComponent(distCat)}`;
+
+  if (openBtn) openBtn.href = editUrl;
+
+  if (copyTitleBtn) {
+    copyTitleBtn.onclick = () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(catTitle).then(() => {
+          showToast(`Назва катэгорыі «${catTitle}» скапіяваная!`);
+        });
+      }
+    };
+  }
+
+  if (copyTextBtn) {
+    copyTextBtn.onclick = () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(wikitext).then(() => {
+          if (copyTextLabel) {
+            copyTextLabel.innerText = 'Скапіявана!';
+            setTimeout(() => copyTextLabel.innerText = 'Капіяваць Вікітэкст', 2500);
+          }
+          showToast('Вікітэкст паспяхова скапіяваны ў буфер абмену!');
+        });
+      }
+    };
+  }
+
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeCreateCategoryModal() {
+  const modal = document.getElementById('createCatModal');
+  if (modal) modal.style.display = 'none';
 }
 
 function copySuggestedPhotoTitle(monumentId, event) {
@@ -1025,11 +1072,26 @@ function setupEventListeners() {
     }
   });
 
+  // Create Category Modal
+  const createCatCloseBtn = document.getElementById('createCatCloseBtn');
+  if (createCatCloseBtn) {
+    createCatCloseBtn.addEventListener('click', closeCreateCategoryModal);
+  }
+  const createCatModal = document.getElementById('createCatModal');
+  if (createCatModal) {
+    createCatModal.addEventListener('click', (e) => {
+      if (e.target.id === 'createCatModal') {
+        closeCreateCategoryModal();
+      }
+    });
+  }
+
   // ESC to close drawer or modal
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeDetailDrawer();
       document.getElementById('aboutModal').style.display = 'none';
+      closeCreateCategoryModal();
     }
   });
 }
