@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="be">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Вікі любіць славутасці — Беларусь | Карта помнікаў</title>
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/ca/Wiki_Loves_Monuments_Logo_notext.svg" type="image/svg+xml">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet & MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+  
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+
+  <!-- Top Bar / Header -->
+  <header class="wlm-header">
+    <div class="header-left">
+      <div class="wlm-logo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Wiki_Loves_Monuments_Logo_notext.svg" alt="WLM Logo" width="34" height="34">
+        <div>
+          <span class="logo-title">Вікі любіць славутасці</span>
+          <span class="logo-subtitle">Беларусь &bull; Wiki Loves Monuments</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Statistics Counter -->
+    <div class="header-stats">
+      <div class="stat-item" title="Усяго аб'ектаў у Дзяржаўным спісе ГКК">
+        <span class="stat-num" id="statTotal">8 096</span>
+        <span class="stat-lbl">помнікаў</span>
+      </div>
+      <div class="stat-item" title="Помнікі з дакладнымі GPS-каардынатамі на карце">
+        <span class="stat-num" id="statMapped">6 030</span>
+        <span class="stat-lbl">на карце</span>
+      </div>
+      <div class="stat-item stat-item--missing" title="Помнікі без фота — галоўная мэта конкурсу!">
+        <span class="stat-num" id="statMissing">5 116</span>
+        <span class="stat-lbl">без фота</span>
+      </div>
+      <div class="stat-item stat-item--hasphoto" title="Помнікі, якія ўжо маюць фота">
+        <span class="stat-num" id="statWithPhoto">914</span>
+        <span class="stat-lbl">з фота</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- View Switcher Tabs -->
+      <div class="view-tabs">
+        <button class="tab-btn active" id="tabMapBtn">
+          Карта
+        </button>
+        <button class="tab-btn" id="tabNoCoordsBtn">
+          Без каардынат <span class="tab-badge" id="tabNoCoordsCount">2 734</span>
+        </button>
+      </div>
+
+      <button class="btn-about" id="openAboutBtn" title="Пра конкурс">Пра конкурс</button>
+    </div>
+  </header>
+
+  <!-- Floating Filter Toolbar -->
+  <nav class="filter-panel" id="filterPanel">
+    <div class="search-group">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Пошук па назве, горадзе або шыфры (напр. 412Г000012)..." autocomplete="off">
+      <button id="clearSearchBtn" class="btn-clear" style="display:none;">&times;</button>
+    </div>
+
+    <div class="filters-row">
+      <!-- Quick toggle: only without photos -->
+      <button class="toggle-btn" id="filterNoPhotoBtn" title="Паказаць толькі аб'екты, якім патрэбны здымкі">
+        <span class="toggle-dot"></span>
+        <span class="toggle-text">Толькі без фота</span>
+      </button>
+
+      <!-- Heritage Form Filter (Default: Immovable for WLM) -->
+      <select id="formSelect" class="filter-select" title="Форма гісторыка-культурнай спадчыны">
+        <option value="immovable" selected>Нерухомая спадчына (WLM)</option>
+        <option value="movable">Рухомыя каштоўнасці</option>
+        <option value="intangible">Нематэрыяльная спадчына</option>
+        <option value="all">Усе формы спадчыны</option>
+      </select>
+
+      <!-- Region Select -->
+      <select id="regionSelect" class="filter-select">
+        <option value="">Усе вобласці</option>
+      </select>
+
+      <!-- District Select -->
+      <select id="districtSelect" class="filter-select" disabled>
+        <option value="">Усе раёны</option>
+      </select>
+
+      <!-- Category Select -->
+      <select id="categorySelect" class="filter-select">
+        <option value="">Усе катэгорыі</option>
+        <option value="0">0-я катэгорыя (Сусветная спадчына ЮНЕСКА)</option>
+        <option value="1">1-я катэгорыя (Міжнароднага значэння)</option>
+        <option value="2">2-я катэгорыя (Нацыянальнага значэння)</option>
+        <option value="3">3-я катэгорыя (Рэгіянальнага значэння)</option>
+        <option value="А">Катэгорыя «А» (Аўтэнтычная нематэрыяльная)</option>
+        <option value="Б">Катэгорыя «Б» (Адноўленая нематэрыяльная)</option>
+      </select>
+
+      <!-- Type Select -->
+      <select id="typeSelect" class="filter-select">
+        <option value="">Усе тыпы помнікаў</option>
+        <option value="архітэктура">Помнікі архітэктуры</option>
+        <option value="археалогія">Помнікі археалогіі</option>
+        <option value="гісторыя">Помнікі гісторыі</option>
+        <option value="мастацтва">Помнікі мастацтва</option>
+        <option value="горадабудаўніцтва">Помнікі горадабудаўніцтва</option>
+      </select>
+
+      <!-- Reset Filters Button -->
+      <button class="btn-reset" id="resetFiltersBtn" title="Скінуць усе фільтры" style="display:none;">
+        Скінуць
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main View Area (Map or No-coords list) -->
+  <div class="wlm-body">
+    <!-- Map Container -->
+    <main id="map" class="map-container"></main>
+
+    <!-- No Coordinates List Container -->
+    <section id="noCoordsSection" class="no-coords-container" style="display:none;">
+      <div class="no-coords-inner">
+        <div class="no-coords-banner">
+          <div>
+            <h3>Аб’екты без дакладных GPS-каардынат</h3>
+            <p>Гэтыя помнікі ўключаныя ў афіцыйны Дзяржаўны спіс ГКК, але для іх яшчэ няма кропкі на карце. Вы можаце загрузіць для іх фотаздымак па адрасе, альбо дадаць каардынаты ў Вікідадзеныя!</p>
+          </div>
+        </div>
+        <div class="no-coords-grid" id="noCoordsGrid"></div>
+        <div class="no-coords-pagination" id="noCoordsPagination"></div>
+      </div>
+    </section>
+
+    <!-- GPS Locate Button Floating On Map -->
+    <button class="btn-locate" id="locateBtn" title="Знайсці помнікі каля мяне (GPS)">
+      <span class="locate-icon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="22" y1="12" x2="18" y2="12"></line>
+          <line x1="6" y1="12" x2="2" y2="12"></line>
+          <line x1="12" y1="6" x2="12" y2="2"></line>
+          <line x1="12" y1="22" x2="12" y2="18"></line>
+        </svg>
+      </span>
+      <span class="locate-label">Каля мяне</span>
+    </button>
+
+    <!-- Map Legend (Bottom Left) -->
+    <div class="map-legend">
+      <div class="legend-row">
+        <span class="legend-dot legend-dot--red"></span>
+        <span>Няма фота (патрабуецца)</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-dot legend-dot--blue"></span>
+        <span>Ёсць фота</span>
+      </div>
+    </div>
+
+    <!-- Detail Drawer / Slide Panel (Right side on desktop, bottom sheet on mobile) -->
+    <aside class="detail-drawer" id="detailDrawer">
+    <div class="drawer-header">
+      <div class="drawer-badges" id="drawerBadges"></div>
+      <button class="drawer-close" id="drawerCloseBtn" title="Закрыць">&times;</button>
+    </div>
+
+    <div class="drawer-content">
+      <h2 class="drawer-title" id="drawerTitle"></h2>
+
+      <!-- Image Preview -->
+      <div class="drawer-image-box" id="drawerImageBox" style="display:none;">
+        <a id="drawerImageLink" href="#" target="_blank" rel="noopener" title="Адкрыць фота ў поўным памеры">
+          <img id="drawerImage" src="" alt="Фота помніка" loading="lazy">
+        </a>
+        <div class="drawer-image-caption" id="drawerImageCaption">
+          <span>Фота з Вікісховішча</span>
+          <span>Павялічыць</span>
+        </div>
+      </div>
+
+      <!-- Missing photo banner -->
+      <div class="missing-photo-banner" id="missingPhotoBanner">
+        <div>
+          <strong>Для гэтага помніка яшчэ няма фота!</strong>
+          <p>Сфатаграфуйце яго і загрузіце на конкурс, каб дапамагчы Вікіпедыі і пазмагацца за прызы.</p>
+        </div>
+      </div>
+
+      <!-- MAIN ACTION: Upload to Commons -->
+      <a href="#" target="_blank" rel="noopener" class="btn-upload-commons" id="drawerUploadBtn">
+        <span>Загрузіць фота на Вікісховішча</span>
+      </a>
+
+      <!-- Information List -->
+      <div class="info-list">
+        <div class="info-item" id="infoCodeRow">
+          <span class="info-label">Шыфр Дзяржспіса:</span>
+          <span class="info-value font-mono" id="infoCode"></span>
+        </div>
+        <div class="info-item" id="infoDatingRow">
+          <span class="info-label">Датаванне:</span>
+          <span class="info-value" id="infoDating"></span>
+        </div>
+        <div class="info-item" id="infoTypeRow">
+          <span class="info-label">Тып помніка:</span>
+          <span class="info-value" id="infoType"></span>
+        </div>
+        <div class="info-item" id="infoCategoryRow">
+          <span class="info-label">Катэгорыя аховы:</span>
+          <span class="info-value" id="infoCategory"></span>
+        </div>
+        <div class="info-item" id="infoLocationRow">
+          <span class="info-label">Месцазнаходжанне:</span>
+          <span class="info-value" id="infoLocation"></span>
+        </div>
+        <div class="info-item" id="infoAddressRow">
+          <span class="info-label">Адрас:</span>
+          <span class="info-value" id="infoAddress"></span>
+        </div>
+        <div class="info-item" id="infoCoordsRow">
+          <span class="info-label">GPS-каардынаты:</span>
+          <span class="info-value" id="infoCoords"></span>
+        </div>
+      </div>
+
+      <!-- Quick External Links (Single Row of Icon Buttons) -->
+      <div class="drawer-links" id="drawerLinks">
+        <!-- 1. Route / Google Maps Directions -->
+        <a href="#" target="_blank" rel="noopener" class="ext-icon-btn" id="linkNav" title="Пракласці маршрут (Google Maps)">
+          <span class="ext-btn-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M21.71 11.29l-9-9a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42l9 9a1 1 0 0 0 1.42 0l9-9a1 1 0 0 0 0-1.42zm-10.71 7.3L4.41 12 11 5.41V9h3a3 3 0 0 1 3 3v3h-2v-3a1 1 0 0 0-1-1h-3v3.59z"/>
+            </svg>
+          </span>
+          <span class="ext-btn-label">Маршрут</span>
+        </a>
+
+        <!-- 2. Commons Category -->
+        <a href="#" target="_blank" rel="noopener" class="ext-icon-btn" id="linkCommonsCat" title="Катэгорыя на Вікісховішчы">
+          <span class="ext-btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-305 -516 610 820" width="18" height="24">
+              <defs>
+                <clipPath id="commons-clip"><circle r="298"/></clipPath>
+              </defs>
+              <circle r="100" fill="#990000"/>
+              <g fill="#006699">
+                <g id="commons-arrow" clip-path="url(#commons-clip)">
+                  <path d="m-11 180v118h22v-118"/>
+                  <path d="m-43 185l43-75 43 75"/>
+                </g>
+                <g id="commons-arrows3">
+                  <use xlink:href="#commons-arrow" transform="rotate(45)"/>
+                  <use xlink:href="#commons-arrow" transform="rotate(90)"/>
+                  <use xlink:href="#commons-arrow" transform="rotate(135)"/>
+                </g>
+                <use xlink:href="#commons-arrows3" transform="scale(-1 1)"/>
+                <path transform="rotate(-45)" stroke="#006699" stroke-width="84" fill="none" d="M 0,-256 A 256 256 0 1 0 256,0 C 256,-100 155,-150 250,-275"/>
+                <path d="m-23-515s-36 135-80 185 116-62 170-5-90-180-90-180z"/>
+              </g>
+            </svg>
+          </span>
+          <span class="ext-btn-label">Сховішча</span>
+        </a>
+
+        <!-- 3. Wikidata -->
+        <a href="#" target="_blank" rel="noopener" class="ext-icon-btn" id="linkWikidata" title="Элемент у Вікідадзеных">
+          <span class="ext-btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="22" height="22">
+              <g fill="none">
+                <path fill="#990000" d="M0 40.767h1.795V10H0v30.767zm3.71 0h5.502V10H3.71v30.767zM11.006 10v30.766h5.504V10h-5.504z"/>
+                <path fill="#339966" d="M44.28 40.77h1.796V10H44.28v30.77zM47.99 10v30.77h1.795V10H47.99zM18.365 40.77h1.795V10h-1.795v30.77zM22.075 10v30.768h1.795V10h-1.795z"/>
+                <path fill="#006699" d="M25.723 40.77h5.504V10h-5.504v30.77zm7.299 0h1.914V10h-1.914v30.77zM36.73 10v30.768h5.503V10H36.73z"/>
+              </g>
+            </svg>
+          </span>
+          <span class="ext-btn-label">Вікіданыя</span>
+        </a>
+
+        <!-- 4. Bank of Data (heritage.gov.by) -->
+        <a href="#" target="_blank" rel="noopener" class="ext-icon-btn" id="linkHeritage" title="Афіцыйная картка на heritage.gov.by">
+          <span class="ext-btn-icon">
+            <img src="assets/heritage_bank_logo.png" alt="heritage.gov.by" width="22" height="22">
+          </span>
+          <span class="ext-btn-label">Спадчына</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+  </div>
+
+  <!-- About Contest Modal -->
+  <div class="modal-backdrop" id="aboutModal" style="display:none;">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>Пра конкурс «Вікі любіць славутасці»</h3>
+        <button class="modal-close" id="aboutCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>«Вікі любіць славутасці» (Wiki Loves Monuments)</strong> — найбуйнейшы ў свеце міжнародны фотаконкурс помнікаў культурнай і гістарычнай спадчыны, занесены ў Кнігу рэкордаў Гінэса.</p>
+        <p>Мэта конкурсу — сабраць фатаграфіі ўсіх афіцыйных гісторыка-культурных каштоўнасцей Беларусі для выкарыстання ў артыкулах Вікіпедыі і захавання візуальнай спадчыны краіны пад свабоднай ліцэнзіяй.</p>
+        <h4>Як прыняць удзел:</h4>
+        <ol>
+          <li>Знайдзіце на карце бліжэйшы помнік (асабліва адзначаны <strong>чырвоным маркерам</strong> — для іх фота яшчэ няма!).</li>
+          <li>Зрабіце якасны фотаздымак аб'екта або выкарыстайце свае ўласныя архіўныя фота.</li>
+          <li>Націсніце кнопку <strong>«Загрузіць фота на Вікісховішча»</strong> — параметры аб'екта і шыфр падставяцца аўтаматычна!</li>
+        </ol>
+        <p class="modal-footer-note">Усе даныя пра 8 096 помнікаў сінхранізаваныя з Дзяржаўным спісам гісторыка-культурных каштоўнасцей Рэспублікі Беларусь і інтэграваныя ў Вікідадзеныя (Wikidata).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Загрузка 8 096 помнікаў Беларусі...</div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
