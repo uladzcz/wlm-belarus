@@ -2,6 +2,7 @@
 
 const state = {
   allMonuments: [],
+  districtCommonsMap: {},
   filteredMonuments: [],
   filteredNoCoords: [],
   currentTab: 'map', // 'map' or 'nocoords'
@@ -131,13 +132,150 @@ function getCategoryInfo(rawCat) {
 }
 
 // Wikimedia Commons Category helpers
+function hasRealCommonsCategory(m) {
+  return Boolean(m && m.ccat && m.ccat.trim() && m.ccat !== m.c);
+}
+
+function getDistrictCommonsCategory(m) {
+  if (state.districtCommonsMap) {
+    if (m.dst && state.districtCommonsMap[m.dst]) {
+      return state.districtCommonsMap[m.dst];
+    }
+    if (m.r && state.districtCommonsMap[m.r]) {
+      return state.districtCommonsMap[m.r];
+    }
+  }
+  return 'Cultural heritage monuments in Belarus with known IDs';
+}
+
 function getCommonsCategoryName(m) {
-  return m.ccat || m.c || 'Cultural heritage monuments in Belarus';
+  if (hasRealCommonsCategory(m)) {
+    return m.ccat;
+  }
+  return getDistrictCommonsCategory(m);
 }
 
 function getCommonsCategoryUrl(m) {
-  const cat = getCommonsCategoryName(m);
-  return `https://commons.wikimedia.org/wiki/Category:${encodeURIComponent(cat.replace(/ /g, '_'))}`;
+  if (hasRealCommonsCategory(m)) {
+    return `https://commons.wikimedia.org/wiki/Category:${encodeURIComponent(m.ccat.replace(/ /g, '_'))}`;
+  }
+  const distCat = getDistrictCommonsCategory(m);
+  return `https://commons.wikimedia.org/wiki/Category:${encodeURIComponent(distCat.replace(/ /g, '_'))}`;
+}
+
+function getDefaultCategoryTitle(m) {
+  if (hasRealCommonsCategory(m)) {
+    return m.ccat;
+  }
+  // Standard format with heritage code: WLM Belarus <CODE>
+  return `WLM Belarus ${m.c || m.id}`;
+}
+
+function generateCategoryWikitext(m) {
+  const lines = [];
+
+  // 1. Heritage ID template
+  if (m.c) {
+    lines.push(`{{Belarus heritage|${m.c}}}`);
+  }
+
+  // 2. Object GPS location (if available)
+  if (m.lat && m.lon) {
+    lines.push(`{{Object location dec|${Number(m.lat).toFixed(6)}|${Number(m.lon).toFixed(6)}}}`);
+  }
+
+  // 3. Belarusian description
+  const descParts = [m.t];
+  const locStr = formatLocation(m);
+  if (locStr) descParts.push(locStr);
+  if (m.a) descParts.push(m.a);
+  if (m.d) descParts.push(`(${m.d})`);
+  lines.push(`{{be|1=${descParts.filter(Boolean).join(', ')}}}`);
+  lines.push('');
+
+  // 4. Parent category:
+  // If element of complex heritage site (underscore in code, e.g. 213В000758_1):
+  if (m.c && m.c.includes('_')) {
+    const parentCode = m.c.split('_')[0];
+    const parent = state.allMonuments.find(x => x.c === parentCode);
+    if (parent && hasRealCommonsCategory(parent)) {
+      lines.push(`[[Category:${parent.ccat}]]`);
+    } else {
+      lines.push(`[[Category:WLM Belarus ${parentCode}]]`);
+      const distCat = getDistrictCommonsCategory(m);
+      if (distCat) {
+        lines.push(`[[Category:${distCat}]]`);
+      }
+    }
+  } else {
+    // Top-level administrative unit category
+    const distCat = getDistrictCommonsCategory(m);
+    if (distCat) {
+      lines.push(`[[Category:${distCat}]]`);
+    }
+  }
+
+  // Country tracking category
+  lines.push('[[Category:Cultural heritage monuments in Belarus with known IDs]]');
+
+  return lines.join('\n');
+}
+
+function handleCreateOrOpenCategory(monumentId, event) {
+  if (event) event.stopPropagation();
+  const m = state.allMonuments.find(x => x.id === monumentId);
+  if (!m) return;
+
+  if (hasRealCommonsCategory(m)) {
+    window.open(`https://commons.wikimedia.org/wiki/Category:${encodeURIComponent(m.ccat.replace(/ /g, '_'))}`, '_blank');
+    return;
+  }
+
+  const catTitle = getDefaultCategoryTitle(m);
+  const wikitext = generateCategoryWikitext(m);
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(wikitext).then(() => {
+      showToast(`Шаблон катэгорыі для «${catTitle}» скапіяваны ў буфер абмену! Націсніце Ctrl+V пры рэдагаванні старонкі.`);
+    }).catch(() => {
+      showToast(`Адкрываецца старонка стварэння катэгорыі «${catTitle}»...`);
+    });
+  } else {
+    showToast(`Адкрываецца старонка стварэння катэгорыі «${catTitle}»...`);
+  }
+
+  const editUrl = `https://commons.wikimedia.org/w/index.php?title=Category:${encodeURIComponent(catTitle.replace(/ /g, '_'))}&action=edit&preloadtext=${encodeURIComponent(wikitext)}`;
+  window.open(editUrl, '_blank');
+}
+
+function copySuggestedPhotoTitle(monumentId, event) {
+  if (event) event.stopPropagation();
+  const m = state.allMonuments.find(x => x.id === monumentId);
+  if (!m) return;
+
+  const cleanTitle = (m.t || 'Помнік').replace(/[\\/:*?"<>|]/g, '').trim();
+  const loc = m.loc ? ` (${m.loc})` : '';
+  const code = m.c ? ` [${m.c}]` : '';
+  const suggestedName = `${cleanTitle}${loc}${code}`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(suggestedName).then(() => {
+      showToast(`Рэкамендаваная назва файла «${suggestedName}» скапіяваная! Устаўце яе ў полі «Назва» на Вікісховішчы (Ctrl+V).`);
+    });
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('wlmToast');
+  const toastMsg = document.getElementById('wlmToastMsg');
+  if (!toast || !toastMsg) return;
+
+  toastMsg.innerText = msg;
+  toast.classList.add('show');
+  clearTimeout(window._toastTimeout);
+  window._toastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 5000);
 }
 
 // Custom Leaflet Icons
@@ -229,10 +367,22 @@ function initMap() {
 async function loadDataset() {
   const overlay = document.getElementById('loadingOverlay');
   try {
-    const res = await fetch('data/monuments.json');
-    if (!res.ok) throw new Error('Не ўдалося загрузіць базу помнікаў');
-    const data = await res.json();
+    const [resMonuments, resDistrictMap] = await Promise.all([
+      fetch('data/monuments.json'),
+      fetch('data/district_commons_map.json').catch(() => null)
+    ]);
+
+    if (!resMonuments.ok) throw new Error('Не ўдалося загрузіць базу помнікаў');
+    const data = await resMonuments.json();
     state.allMonuments = data;
+
+    if (resDistrictMap && resDistrictMap.ok) {
+      try {
+        state.districtCommonsMap = await resDistrictMap.json();
+      } catch (e) {
+        console.warn('Не ўдалося разабраць district_commons_map.json', e);
+      }
+    }
 
     // Collect regions and districts
     let mappedCount = 0;
@@ -436,6 +586,13 @@ function renderNoCoordsGrid() {
       imgThumb = (u.includes('Special:FilePath') && !u.includes('width=')) ? `${u}?width=400` : u;
     }
 
+    const hasCat = hasRealCommonsCategory(m);
+    const catBtnClass = hasCat ? 'btn-card-commons btn-card-commons--has-cat' : 'btn-card-commons btn-card-commons--create';
+    const catBtnText = hasCat ? 'Катэгорыя' : '+ Катэгорыя';
+    const catBtnTitle = hasCat
+      ? `Катэгорыя на Вікісховішчы: ${escapeHtml(m.ccat)}`
+      : `Катэгорыі яшчэ няма на Вікісховішчы. Націсніце, каб стварыць новую катэгорыю з гатовым шаблонам і апісаннем!`;
+
     return `
       <div class="monument-card" onclick="openDetailDrawerById('${escapeHtml(m.id)}')">
         ${imgThumb ? `
@@ -458,9 +615,9 @@ function renderNoCoordsGrid() {
             <a href="${escapeHtml(uploadUrl)}" target="_blank" rel="noopener" class="btn-card-upload" title="Загрузіць фота на Вікісховішча">
               Фота
             </a>
-            <a href="${escapeHtml(commonsCatUrl)}" target="_blank" rel="noopener" class="btn-card-commons" title="Катэгорыя на Вікісховішчы: ${escapeHtml(catName)}">
-              Катэгорыя
-            </a>
+            <button type="button" onclick="handleCreateOrOpenCategory('${escapeHtml(m.id)}', event)" class="${catBtnClass}" title="${catBtnTitle}">
+              ${catBtnText}
+            </button>
             <a href="${escapeHtml(wikidataUrl)}" target="_blank" rel="noopener" class="btn-card-wikidata" title="Дадаць каардынаты ў Вікідадзеныя">
               Дадаць GPS
             </a>
@@ -620,6 +777,12 @@ function openDetailDrawer(m) {
 
   uploadBtn.href = buildCommonsUploadUrl(m);
 
+  // Helper button to copy suggested photo title
+  const copyTitleBtn = document.getElementById('copyPhotoTitleBtn');
+  if (copyTitleBtn) {
+    copyTitleBtn.onclick = (e) => copySuggestedPhotoTitle(m.id, e);
+  }
+
   setRow('infoCodeRow', 'infoCode', m.c);
   setRow('infoDatingRow', 'infoDating', m.d);
   setRow('infoTypeRow', 'infoType', m.tp);
@@ -647,9 +810,25 @@ function openDetailDrawer(m) {
 
   // 2. Commons Category Icon Button
   const commonsBtn = document.getElementById('linkCommonsCat');
-  const catName = getCommonsCategoryName(m);
-  commonsBtn.href = getCommonsCategoryUrl(m);
-  commonsBtn.title = `Катэгорыя на Вікісховішчы: ${catName}`;
+  const commonsLabel = document.getElementById('linkCommonsCatLabel');
+  const hasCat = hasRealCommonsCategory(m);
+
+  if (hasCat) {
+    commonsBtn.href = `https://commons.wikimedia.org/wiki/Category:${encodeURIComponent(m.ccat.replace(/ /g, '_'))}`;
+    commonsBtn.title = `Катэгорыя на Вікісховішчы: ${m.ccat}`;
+    commonsBtn.onclick = null;
+    commonsBtn.classList.add('ext-icon-btn--blue');
+    if (commonsLabel) commonsLabel.innerText = 'Сховішча';
+  } else {
+    commonsBtn.href = '#';
+    commonsBtn.title = 'Катэгорыі яшчэ няма на Вікісховішчы. Націсніце, каб стварыць новую катэгорыю з шаблонам';
+    commonsBtn.onclick = (e) => {
+      e.preventDefault();
+      handleCreateOrOpenCategory(m.id, e);
+    };
+    commonsBtn.classList.remove('ext-icon-btn--blue');
+    if (commonsLabel) commonsLabel.innerText = '+ Стварыць';
+  }
 
   // 3. Wikidata Icon Button
   const wikiLink = document.getElementById('linkWikidata');
@@ -693,10 +872,21 @@ function buildCommonsUploadUrl(m) {
   const locStr = formatLocation(m);
   if (locStr) descParts.push(locStr);
   if (m.a) descParts.push(m.a);
-  const fullDesc = descParts.join(', ');
+  const fullDesc = descParts.filter(Boolean).join(', ');
 
-  const ccat = getCommonsCategoryName(m);
-  const catList = [ccat, 'Cultural heritage monuments in Belarus with known IDs'];
+  // Collect valid, existing Commons categories:
+  // 1. Specific monument category (ONLY if it exists and is not raw code!)
+  // 2. District or city category (e.g. Cultural heritage monuments in Talačyn District)
+  // 3. Country tracking category
+  const catList = [];
+  if (hasRealCommonsCategory(m)) {
+    catList.push(m.ccat);
+  }
+  const distCat = getDistrictCommonsCategory(m);
+  if (distCat) {
+    catList.push(distCat);
+  }
+  catList.push('Cultural heritage monuments in Belarus with known IDs');
   const categoriesParam = Array.from(new Set(catList.filter(Boolean))).join('|');
 
   const params = new URLSearchParams({
@@ -710,6 +900,11 @@ function buildCommonsUploadUrl(m) {
 
   if (m.c) {
     params.set('id', m.c);
+    params.set('fields[0]', m.c);
+  }
+  if (fullDesc) {
+    params.set('id2', fullDesc);
+    params.set('fields[1]', fullDesc);
   }
   if (m.lat && m.lon) {
     params.set('lat', m.lat.toString());
