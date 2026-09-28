@@ -132699,7 +132699,9 @@
     "a": "Заводскі раён",
     "p": 0,
     "f": "immovable",
-    "ccat": "711Д000283"
+    "ccat": "711Д000283",
+    "lat": 53.838652,
+    "lon": 27.70534
   },
   {
     "id": "terytoryia-sredneviakovaga-gorada-dziatcinetc-vakolny-gorad-762",

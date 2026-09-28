@@ -18,3 +18,14 @@ Thumbs.db
 
 # Scraped raw PDF archives
 data/pravo_pdfs/
+data/.nominatim_cache.json
+data/osm_belarus_memorials_raw.json
+scratch_edge_profile/
+*.png
+scripts/apply_corrections_final.py
+scripts/check_actions.py
+scripts/check_dom.py
+scripts/check_live_console.py
+scripts/check_qs_*.py
+scripts/take_screenshot.py
+scripts/test_*.py
