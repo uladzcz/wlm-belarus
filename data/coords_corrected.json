@@ -96,18 +96,6 @@
     "priority": "P1"
   },
   {
-    "code": "112Е000002_74",
-    "lat": 52.2313345,
-    "lon": 24.3847463,
-    "old_lat": 52.093754,
-    "old_lon": 23.685107,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 50114.0,
-    "notes": "OSM building footprint (house) for вул. Леніна, 2, 50114m from old coord",
-    "priority": "P1"
-  },
-  {
     "code": "112Е000002_75",
     "lat": 52.0952881,
     "lon": 23.6833783,
@@ -261,18 +249,6 @@
     "confidence": "high",
     "distance_corrected_m": 645.0,
     "notes": "OSM building footprint (place_of_worship) for вул. Леніна, 18, 645m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "112Е000383_27",
-    "lat": 51.9625655,
-    "lon": 24.5682434,
-    "old_lat": 52.208664,
-    "old_lon": 24.354324,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 31023.9,
-    "notes": "OSM building footprint (yes) for вул. Леніна, 20, 31024m from old coord",
     "priority": "P1"
   },
   {
@@ -1233,18 +1209,6 @@
     "confidence": "high",
     "distance_corrected_m": 324.7,
     "notes": "OSM building footprint (public) for вул. Савецкая, 15, 325m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "412Г000014_2",
-    "lat": 53.1840163,
-    "lon": 24.5175113,
-    "old_lat": 53.677839,
-    "old_lon": 23.829529,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 71361.3,
-    "notes": "OSM building footprint (yes) for вул. Замкавая, 5, 71361m from old coord",
     "priority": "P1"
   },
   {
@@ -2244,126 +2208,6 @@
     "priority": "P1"
   },
   {
-    "code": "613Г000670",
-    "lat": 54.2457811,
-    "lon": 28.5033838,
-    "old_lat": 54.224069,
-    "old_lon": 28.511755,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2474.8,
-    "notes": "OSM building footprint (hardware) for вул. Лапаціна, 34, 2475m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "613Г000671",
-    "lat": 54.2457811,
-    "lon": 28.5033838,
-    "old_lat": 54.224069,
-    "old_lon": 28.511755,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2474.8,
-    "notes": "OSM building footprint (hardware) for вул. Лапаціна, 34, 2475m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_1",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_3",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_2",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_6",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_8",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_5",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_7",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "113Д000023_4",
-    "lat": 53.114379,
-    "lon": 26.0101597,
-    "old_lat": 53.132363,
-    "old_lon": 26.017618,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2060.7,
-    "notes": "OSM building footprint (yes) for могілкі на вул. Дзекабрыстаў, 5, 2061m from old coord",
-    "priority": "P1"
-  },
-  {
     "code": "611Г000474_2",
     "lat": 53.2190631,
     "lon": 26.6812313,
@@ -2385,66 +2229,6 @@
     "confidence": "high",
     "distance_corrected_m": 2982.2,
     "notes": "OSM building footprint (place_of_worship) for вул. Рэпіна, 2, 2982m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "411Г000319_3",
-    "lat": 53.4526963,
-    "lon": 26.4660023,
-    "old_lat": 53.498485,
-    "old_lon": 26.237984,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 15925.9,
-    "notes": "OSM building footprint (retail) for вул. Чырвонаармейская, 9, 15926m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "712Г000010_2",
-    "lat": 54.3190991,
-    "lon": 26.8737341,
-    "old_lat": 53.935766,
-    "old_lon": 27.521658,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 59992.9,
-    "notes": "OSM building footprint (yes) for вул. Багдановіча М., 2, 2, 59993m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "712Г000010_3",
-    "lat": 54.3190991,
-    "lon": 26.8737341,
-    "old_lat": 53.935766,
-    "old_lon": 27.521658,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 59992.9,
-    "notes": "OSM building footprint (yes) for вул. Багдановіча М., 2, 1, 59993m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "712Г000010_1",
-    "lat": 54.3190991,
-    "lon": 26.8737341,
-    "old_lat": 53.935766,
-    "old_lon": 27.521658,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 59992.9,
-    "notes": "OSM building footprint (yes) for вул. Багдановіча М., 2, 3, 59993m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "412Г000033_1",
-    "lat": 53.6925238,
-    "lon": 23.8476946,
-    "old_lat": 53.677839,
-    "old_lon": 23.829529,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2024.2,
-    "notes": "OSM building footprint (residential) for вул. Ціміразева, 3, 2024m from old coord",
     "priority": "P1"
   },
   {
@@ -2520,18 +2304,6 @@
     "priority": "P1"
   },
   {
-    "code": "413Г000653",
-    "lat": 53.60655,
-    "lon": 24.7504435,
-    "old_lat": 53.677839,
-    "old_lon": 23.829529,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 61220.9,
-    "notes": "OSM building footprint (house) for вул. Завадская, 2, 61221m from old coord",
-    "priority": "P1"
-  },
-  {
     "code": "512Г000433_12",
     "lat": 54.2924455,
     "lon": 30.9892829,
@@ -2589,18 +2361,6 @@
     "confidence": "high",
     "distance_corrected_m": 3254.7,
     "notes": "OSM building footprint (industrial) for вул. Панямуньская, 20, 3255m from old coord",
-    "priority": "P1"
-  },
-  {
-    "code": "112Г000151_1",
-    "lat": 52.4925585,
-    "lon": 25.2133874,
-    "old_lat": 52.514078,
-    "old_lon": 25.203789,
-    "source": "osm_address",
-    "confidence": "high",
-    "distance_corrected_m": 2479.5,
-    "notes": "OSM building footprint (building) for вул. Міра, 2, 2480m from old coord",
     "priority": "P1"
   },
   {
