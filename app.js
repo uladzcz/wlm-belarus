@@ -416,7 +416,7 @@ async function loadDataset() {
   const overlay = document.getElementById('loadingOverlay');
   try {
     const [resMonuments, resDistrictMap, resHeritagePortals] = await Promise.all([
-      fetch('data/monuments.json?v=2'),
+      fetch('data/monuments.json?v=3'),
       fetch('data/district_commons_map.json').catch(() => null),
       fetch('data/heritage_portals_map.json').catch(() => null)
     ]);
