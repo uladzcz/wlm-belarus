@@ -29,3 +29,12 @@ scripts/check_live_console.py
 scripts/check_qs_*.py
 scripts/take_screenshot.py
 scripts/test_*.py
+scratch_edge_*/
+data/wikivoyage_*
+data/wv_*
+data/wikidata_sparql_cache.json
+data/qs_coord_corrections_clean.qs
+assets/logos/test_*
+assets/logos/*raw*
+assets/logos/cropped*
+assets/logos/*[]*

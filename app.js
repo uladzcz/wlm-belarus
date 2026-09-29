@@ -3,6 +3,7 @@
 const state = {
   allMonuments: [],
   districtCommonsMap: {},
+  heritagePortalsMap: {},
   filteredMonuments: [],
   filteredNoCoords: [],
   currentTab: 'map', // 'map' or 'nocoords'
@@ -414,9 +415,10 @@ function initMap() {
 async function loadDataset() {
   const overlay = document.getElementById('loadingOverlay');
   try {
-    const [resMonuments, resDistrictMap] = await Promise.all([
+    const [resMonuments, resDistrictMap, resHeritagePortals] = await Promise.all([
       fetch('data/monuments.json?v=2'),
-      fetch('data/district_commons_map.json').catch(() => null)
+      fetch('data/district_commons_map.json').catch(() => null),
+      fetch('data/heritage_portals_map.json').catch(() => null)
     ]);
 
     if (!resMonuments.ok) throw new Error('Не ўдалося загрузіць базу помнікаў');
@@ -428,6 +430,14 @@ async function loadDataset() {
         state.districtCommonsMap = await resDistrictMap.json();
       } catch (e) {
         console.warn('Не ўдалося разабраць district_commons_map.json', e);
+      }
+    }
+
+    if (resHeritagePortals && resHeritagePortals.ok) {
+      try {
+        state.heritagePortalsMap = await resHeritagePortals.json();
+      } catch (e) {
+        console.warn('Не ўдалося разабраць heritage_portals_map.json', e);
       }
     }
 
@@ -892,7 +902,137 @@ function openDetailDrawer(m) {
   heritageBtn.href = `https://heritage.gov.by/catalog/${m.id}`;
   heritageBtn.title = `Афіцыйная картка на сайце heritage.gov.by`;
 
+  // 5. Regional Heritage Portals («Краязнаўчыя рэсурсы»)
+  const portalsSection = document.getElementById('drawerPortalsSection');
+  const portalsList = document.getElementById('drawerPortalsList');
+  if (portalsSection && portalsList) {
+    const portalLinks = getHeritagePortalLinks(m);
+    if (portalLinks && portalLinks.length > 0) {
+      portalsList.innerHTML = portalLinks.map(p => `
+        <a href="${escapeHtml(p.url)}" target="_blank" rel="noopener noreferrer" class="portal-btn ${p.cls}" title="${escapeHtml(p.name)}">
+          <span class="portal-btn-icon-wrap">
+            <img src="${p.logo}" alt="${escapeHtml(p.name)}" class="portal-btn-icon" onerror="this.onerror=null;this.src='${p.fallback}'">
+          </span>
+          <span class="portal-btn-title">${escapeHtml(p.name)}</span>
+          <svg class="portal-btn-arrow" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      `).join('');
+      portalsSection.style.display = 'block';
+    } else {
+      portalsList.innerHTML = '';
+      portalsSection.style.display = 'none';
+    }
+  }
+
   drawer.classList.add('open');
+}
+
+// Helper to look up and format external regional heritage portal links
+function getHeritagePortalLinks(m) {
+  if (!state.heritagePortalsMap || !m) return null;
+
+  const codeKey = m.c ? String(m.c).trim() : null;
+  const idKey = m.id ? String(m.id).trim() : null;
+  const qidKey = m.qid ? String(m.qid).trim() : null;
+  const normCode = codeKey ? codeKey.replace(/[\s\-_]+/g, '') : null;
+
+  const entry = (codeKey && state.heritagePortalsMap[codeKey]) ||
+                (idKey && state.heritagePortalsMap[idKey]) ||
+                (normCode && state.heritagePortalsMap[normCode]) ||
+                (qidKey && state.heritagePortalsMap[qidKey]);
+
+  if (!entry || typeof entry !== 'object') return null;
+
+  const links = [];
+
+  const extractVal = (val) => {
+    if (!val) return '';
+    if (typeof val === 'string' || typeof val === 'number') return String(val).trim();
+    if (typeof val === 'object') return String(val.url || val.id || val.value || '').trim();
+    return '';
+  };
+
+  // 1. Globus of Belarus (globustut.by)
+  const globusRaw = extractVal(entry.globus || entry.globustut || entry.p2488);
+  if (globusRaw) {
+    let url = globusRaw;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://globustut.by/' + url.replace(/^\/+/, '');
+    }
+    url = url.replace('http://', 'https://').replace('globus.tut.by', 'globustut.by');
+    links.push({
+      id: 'globus',
+      name: 'Глобус Беларусі',
+      url: url,
+      logo: 'assets/logos/globus.svg',
+      fallback: 'assets/logos/globus.png',
+      cls: 'portal-btn--globus'
+    });
+  }
+
+  // 2. Radzima.org
+  const radzimaRaw = extractVal(entry.radzima || entry.radzima_org || entry.p2491 || entry.p6822);
+  if (radzimaRaw) {
+    let url = radzimaRaw;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      if (url.endsWith('.html')) {
+        url = 'https://www.radzima.org/be/' + url.replace(/^\/+/, '');
+      } else {
+        url = `https://www.radzima.org/be/object/${url}.html`;
+      }
+    }
+    url = url.replace('http://', 'https://');
+    links.push({
+      id: 'radzima',
+      name: 'Radzima.org',
+      url: url,
+      logo: 'assets/logos/radzima.svg',
+      fallback: 'assets/logos/radzima.png',
+      cls: 'portal-btn--radzima'
+    });
+  }
+
+  // 3. Sobory.ru
+  const soboryRaw = extractVal(entry.sobory || entry.sobory_ru || entry.p8316);
+  if (soboryRaw) {
+    let url = soboryRaw;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = `https://sobory.ru/article/?object=${url}`;
+    }
+    url = url.replace('http://', 'https://');
+    links.push({
+      id: 'sobory',
+      name: 'Саборы.ру',
+      url: url,
+      logo: 'assets/logos/sobory.svg',
+      fallback: 'assets/logos/sobory.png',
+      cls: 'portal-btn--sobory'
+    });
+  }
+
+  // 4. Archivarta (archivarta.by)
+  const archivartaRaw = extractVal(entry.archivarta || entry.archivarta_by || entry.p11671);
+  if (archivartaRaw) {
+    let url = archivartaRaw;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = `https://archivarta.by/properties/${url}`;
+    }
+    url = url.replace('http://', 'https://');
+    links.push({
+      id: 'archivarta',
+      name: 'Архіварта',
+      url: url,
+      logo: 'assets/logos/archivarta.svg',
+      fallback: 'assets/logos/archivarta.png',
+      cls: 'portal-btn--archivarta'
+    });
+  }
+
+  return links.length > 0 ? links : null;
 }
 
 function closeDetailDrawer() {
