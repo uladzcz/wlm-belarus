@@ -3144,66 +3144,6 @@
     "priority": "P3"
   },
   {
-    "code": "113Д000369",
-    "lat": 52.0918114,
-    "lon": 23.6490277,
-    "old_lat": 52.227622,
-    "old_lon": 23.34497,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 25656.2,
-    "notes": "OSM memorial match (score=95, dist=25656m from old)",
-    "priority": "P4"
-  },
-  {
-    "code": "113Д000446",
-    "lat": 53.9745385,
-    "lon": 30.1511293,
-    "old_lat": 52.260294,
-    "old_lon": 24.516345,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 421432.8,
-    "notes": "OSM memorial match (score=95, dist=421433m from old)",
-    "priority": "P4"
-  },
-  {
-    "code": "213Д000054",
-    "lat": 55.381829,
-    "lon": 30.2973264,
-    "old_lat": 55.16103,
-    "old_lon": 30.183292,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 25592.4,
-    "notes": "OSM memorial match (score=95, dist=25592m from old)",
-    "priority": "P4"
-  },
-  {
-    "code": "213Д000357",
-    "lat": 55.49441,
-    "lon": 31.9228868,
-    "old_lat": 55.758266,
-    "old_lon": 30.29606,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 106258.8,
-    "notes": "OSM memorial match (score=95, dist=106259m from old)",
-    "priority": "P4"
-  },
-  {
-    "code": "213Д000684",
-    "lat": 55.49441,
-    "lon": 31.9228868,
-    "old_lat": 55.618115,
-    "old_lon": 28.636019,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 207153.6,
-    "notes": "OSM memorial match (score=95, dist=207154m from old)",
-    "priority": "P4"
-  },
-  {
     "code": "313Д000237",
     "lat": 52.301625,
     "lon": 31.4721105,
@@ -3252,30 +3192,6 @@
     "priority": "P4"
   },
   {
-    "code": "313Д000876",
-    "lat": 54.2297018,
-    "lon": 27.2406043,
-    "old_lat": 51.811036,
-    "old_lon": 29.206391,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 299335.7,
-    "notes": "OSM memorial match (score=95, dist=299336m from old)",
-    "priority": "P4"
-  },
-  {
-    "code": "313Д000877",
-    "lat": 54.2297018,
-    "lon": 27.2406043,
-    "old_lat": 51.795919,
-    "old_lon": 29.139114,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 298918.7,
-    "notes": "OSM memorial match (score=95, dist=298919m from old)",
-    "priority": "P4"
-  },
-  {
     "code": "213Д000071",
     "lat": 55.381829,
     "lon": 30.2973264,
@@ -3285,18 +3201,6 @@
     "confidence": "medium",
     "distance_corrected_m": 21152.8,
     "notes": "OSM memorial match (score=70, dist=21153m from old)",
-    "priority": "P4"
-  },
-  {
-    "code": "213Д000543",
-    "lat": 52.788328,
-    "lon": 32.2594502,
-    "old_lat": 54.944999,
-    "old_lon": 30.622337,
-    "source": "osm_memorial_corrected",
-    "confidence": "medium",
-    "distance_corrected_m": 262720.5,
-    "notes": "OSM memorial match (score=70, dist=262720m from old)",
     "priority": "P4"
   },
   {
