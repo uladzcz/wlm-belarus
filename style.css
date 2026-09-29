@@ -1623,3 +1623,13 @@ body {
   display: flex;
   justify-content: flex-end;
 }
+
+.wlm-marker--orange { background: #ea580c; }
+.wlm-marker--green { background: #16a34a; }
+
+.marker-cluster-wlm-orange { background-color: rgba(234, 88, 12, 0.25); }
+.marker-cluster-wlm-orange div { background-color: rgba(234, 88, 12, 0.85); color: #ffffff; font-weight: 800; font-size: 0.85rem; }
+
+.marker-cluster-wlm-green { background-color: rgba(22, 163, 74, 0.25); }
+.marker-cluster-wlm-green div { background-color: rgba(22, 163, 74, 0.85); color: #ffffff; font-weight: 800; font-size: 0.85rem; }
+

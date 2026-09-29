@@ -17,6 +17,7 @@ const state = {
   filters: {
     search: '',
     onlyNoPhoto: false,
+    onlyGKK: false,
     form: 'immovable', // 'immovable' (default for WLM), 'movable', 'intangible', or 'all'
     region: '',
     district: '',
@@ -341,6 +342,20 @@ const blueIcon = L.divIcon({
   iconAnchor: [11, 11]
 });
 
+const orangeIcon = L.divIcon({
+  className: 'wlm-marker-wrapper',
+  html: '<div class="wlm-marker wlm-marker--orange" title="Помнік без ГКК (няма фота)"></div>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11]
+});
+
+const greenIcon = L.divIcon({
+  className: 'wlm-marker-wrapper',
+  html: '<div class="wlm-marker wlm-marker--green" title="Помнік без ГКК (ёсць фота)"></div>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11]
+});
+
 // App Initialization
 document.addEventListener('DOMContentLoaded', async () => {
   initMap();
@@ -535,7 +550,7 @@ function updateDistrictDropdown(region) {
 
 // 5. Filtering Logic
 function applyFilters() {
-  const { search, onlyNoPhoto, form, region, district, category, type } = state.filters;
+  const { search, onlyNoPhoto, onlyGKK, form, region, district, category, type } = state.filters;
   const qLower = search.trim().toLowerCase();
 
   const passesCommonFilter = (m) => {
@@ -544,6 +559,7 @@ function applyFilters() {
       if (m.f !== form) return false;
     }
     if (onlyNoPhoto && m.p === 1) return false;
+    if (onlyGKK && !m.c) return false;
     if (region && m.r !== region) return false;
     if (district && m.dst !== district) return false;
     if (category) {
@@ -591,7 +607,12 @@ function renderMarkers() {
 
   const markers = [];
   state.filteredMonuments.forEach(m => {
-    const icon = (m.p === 1) ? blueIcon : redIcon;
+    let icon = redIcon;
+    if (m.c) {
+      icon = (m.p === 1) ? blueIcon : redIcon;
+    } else {
+      icon = (m.p === 1) ? greenIcon : orangeIcon;
+    }
     const marker = L.marker([m.lat, m.lon], {
       icon: icon,
       wlmHasPhoto: m.p,
@@ -749,7 +770,7 @@ function updateStatsDisplay() {
 
 function updateResetButton() {
   const f = state.filters;
-  const isFiltered = f.search || f.onlyNoPhoto || f.region || f.district || f.category || f.type || (f.form !== 'immovable');
+  const isFiltered = f.search || f.onlyNoPhoto || f.onlyGKK || f.region || f.district || f.category || f.type || (f.form !== 'immovable');
   document.getElementById('resetFiltersBtn').style.display = isFiltered ? 'block' : 'none';
 }
 
@@ -757,6 +778,7 @@ function resetAllFilters() {
   state.filters = {
     search: '',
     onlyNoPhoto: false,
+    onlyGKK: false,
     form: 'immovable',
     region: '',
     district: '',
@@ -767,6 +789,8 @@ function resetAllFilters() {
   document.getElementById('searchInput').value = '';
   document.getElementById('clearSearchBtn').style.display = 'none';
   document.getElementById('filterNoPhotoBtn').classList.remove('active');
+  const gkkBtn = document.getElementById('filterOnlyGKKBtn');
+  if (gkkBtn) gkkBtn.classList.remove('active');
   const formSel = document.getElementById('formSelect');
   if (formSel) formSel.value = 'immovable';
   document.getElementById('regionSelect').value = '';
@@ -1136,6 +1160,24 @@ function setupEventListeners() {
     toggleBtn.classList.toggle('active', state.filters.onlyNoPhoto);
     applyFilters();
   });
+
+  const gkkToggleBtn = document.getElementById('filterOnlyGKKBtn');
+  if (gkkToggleBtn) {
+    gkkToggleBtn.addEventListener('click', () => {
+      state.filters.onlyGKK = !state.filters.onlyGKK;
+      gkkToggleBtn.classList.toggle('active', state.filters.onlyGKK);
+      applyFilters();
+    });
+  }
+
+  // To replace the old one, we just wrap the old one in a dummy if false
+  if (false) {
+    toggleBtn.addEventListener('click', () => {
+    state.filters.onlyNoPhoto = !state.filters.onlyNoPhoto;
+    toggleBtn.classList.toggle('active', state.filters.onlyNoPhoto);
+    applyFilters();
+  });
+  }
 
   // Heritage Form Select
   const formSelect = document.getElementById('formSelect');
